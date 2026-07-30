@@ -1,6 +1,6 @@
 cask "kbd-ctrl" do
-  version "0.1.0"
-  sha256 "2eb41e89cf56e9a875ae7eb8d02486cfac71fe9ea87b8b9e03d1575a3daacb73"
+  version "0.1.1"
+  sha256 "2f43663b9f3f477d1028e49cfa7daf5a44bf315714444fee9b5ea1068ba63f04"
 
   url "https://github.com/juanmaramos/kbd.ctrl/releases/download/v#{version}/kbd.ctrl_#{version}_universal.dmg"
   name "kbd.ctrl"
