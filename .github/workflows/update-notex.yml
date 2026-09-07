@@ -1,0 +1,49 @@
+name: Update Notex
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-notex
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Test updater
+        run: python3 -m unittest discover -s tests
+      - name: Read the latest public release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/juanmaramos/notex-releases/releases/latest > "$RUNNER_TEMP/release.json"
+          python3 scripts/update_notex.py < "$RUNNER_TEMP/release.json"
+      - name: Publish the updated cask
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- Casks/notex.rb; then
+            echo 'Notex cask is already current.'
+            exit 0
+          fi
+          ruby -c Casks/notex.rb
+          version="$(jq -r .tag_name "$RUNNER_TEMP/release.json")"
+          sha="$(git rev-parse HEAD:Casks/notex.rb)"
+          jq -n --arg message "Update Notex to $version" --arg sha "$sha" \
+            --rawfile cask Casks/notex.rb \
+            '{message: $message, sha: $sha, content: ($cask | @base64), branch: "main"}' \
+            > "$RUNNER_TEMP/cask.json"
+          gh api --method PUT "repos/$GITHUB_REPOSITORY/contents/Casks/notex.rb" \
+            --input "$RUNNER_TEMP/cask.json" --silent
