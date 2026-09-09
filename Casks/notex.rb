@@ -1,6 +1,6 @@
 cask "notex" do
-  version "0.2.4"
-  sha256 "f157a0cacd7b7ba9e1b92373d6c893e7274661a476cdbad45647065267d7c671"
+  version "0.2.5"
+  sha256 "a58ef9f16a219ae0155da7105b45064d014dd01e8db8148d9bd4d789fbb8cb24"
 
   url "https://github.com/juanmaramos/notex-releases/releases/download/v#{version}/Notex.dmg",
       verified: "github.com/juanmaramos/notex-releases/"
